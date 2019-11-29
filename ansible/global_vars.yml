@@ -1,0 +1,27 @@
+---
+os: debian
+host_virt: osx_vbox
+pangolin:
+  domain_name: pangolin
+  server_address: 10.30.47.1
+  subnet: 10.0.0.0
+  netmask: 255.0.0.0
+  cidr: 8
+  dhcp_range_start: 10.0.0.1
+  dhcp_range_end: 10.0.255.255
+  admin_account: animal
+os_vars:
+  debian:
+    dhcp_server: isc-dhcp-server
+    dhcp_conf:   /etc/dhcp/dhcpd.conf
+    interface:
+      osx_vbox: enp0s8
+    interfaces: /etc/network/interfaces
+    bind: bind9
+    bind_dir: /etc/bind
+    apache: apache2
+    apache_dir: /etc/apache2
+    apache_docroot: /var/www/html
+    pip3: python3-pip
+
+    

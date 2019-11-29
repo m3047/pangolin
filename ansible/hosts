@@ -1,0 +1,4 @@
+# This group defines the host which we will configure as the pangolin server.
+
+[pangolin_server]
+pangolin.ansible.m3047

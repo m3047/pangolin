@@ -1,0 +1,14 @@
+$ORIGIN .
+$TTL 600
+.		IN SOA	world.{{ pangolin.domain_name }}. nobody.world.{{ pangolin.domain_name }}. (
+		   		1	; serial
+				600	; refresh 10 minutes
+				60	; retry 1 minute
+				86400	; expire in 1 day
+				600	; minimum TTL 10 minutes
+				)
+
+		NS	world.{{ pangolin.domain_name }}.
+*.		A	{{ pangolin.server_address }}
+		TXT	"Pangolin is a captive environment. Authorized use only."
+

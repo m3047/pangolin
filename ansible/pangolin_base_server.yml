@@ -1,0 +1,84 @@
+---
+# Copyright (c) 2019 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
+#
+# This file is part of Pangolin
+#
+# Pangolin is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Pangolin is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
+- hosts: pangolin_server
+#  gather_facts: no
+  pre_tasks:
+    - name: Get global variables before roles are run
+      include_vars: global_vars.yml
+  roles:
+    - dhcp_server
+    - dns_server
+    - apache_server
+  tasks:
+    # Install and enable Pangolin target.
+    - name: Install pangolin.target
+      copy:
+        src=files/etc/systemd/system/pangolin.target
+        dest=/etc/systemd/system/pangolin.target
+      become: yes
+    - name: Enable pangolin.target
+      systemd:
+        name: pangolin.target
+        state: stopped
+        enabled: yes
+      become: yes
+    # Disable root login.
+    - name: Disable root login with password
+      user:
+        name: root
+        password: '!'
+      become: yes
+    # Set up alternate networking.
+    # There are two different possible ways which we might be connected to the host:
+    #  1) We could be connected with port forwarding via NAT.
+    #  2) We could be connected with a fixed address on the bridged interface we
+    #     need to set up.
+    # Only one of those interfaces should be active.
+    - name: See if our bridged interface is already defined
+      lineinfile:
+        path: "{{ os_vars[os].interfaces }}"
+        insertafter: "iface +{{ os_vars[os].interface[host_virt] }} +inet +static"
+        firstmatch: yes
+        regexp: '^[ ]+address[ ]+'
+        state: absent
+      become: yes
+      register: interfaces_file
+    - name: If it was defined, this will ensure the correct address
+      lineinfile:
+        path: "{{ os_vars[os].interfaces }}"
+        insertafter: "iface +{{ os_vars[os].interface[host_virt] }} +inet +static"
+        firstmatch: yes
+        line: "    address {{ pangolin.server_address }}/{{ pangolin.cidr }}"
+      when: interfaces_file.changed
+      become: yes
+    - name: Otherwise, create the appropriate configuration fragment
+      template:
+        src: files/etc/network/interfaces.j2
+        dest: "{{ os_vars[os].interfaces }}.pangolin"
+      when: not interfaces_file.changed
+      become: yes
+    - name: Append the fragment to the list of defined interfaces
+      shell:
+        cmd: cat {{ os_vars[os].interfaces }}.pangolin >> {{ os_vars[os].interfaces }}
+      when: not interfaces_file.changed
+      become: yes
+    - name: Remove the fragment
+      command: "rm {{ os_vars[os].interfaces }}.pangolin"
+      when: not interfaces_file.changed
+      become: yes
+      

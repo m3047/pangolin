@@ -1,0 +1,6 @@
+
+# Primary pangolin server interface.
+allow-hotplug {{ os_vars[os].interface[host_virt] }}
+iface {{ os_vars[os].interface[host_virt] }} inet static
+    address {{ pangolin.server_address }}/{{ pangolin.cidr }}
+

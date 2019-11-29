@@ -1,0 +1,7 @@
+[Unit]
+Description=Pangolin Isolated Wifi Environment
+Wants=bind9.service apache2.service isc-dhcp-server.service
+
+[Install]
+RequiredBy=bind9.service apache2.service isc-dhcp-server.service
+

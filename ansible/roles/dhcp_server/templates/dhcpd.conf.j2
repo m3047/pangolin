@@ -1,0 +1,12 @@
+# dhcpd.conf
+
+option domain-name "{{ pangolin.domain_name }}";
+option domain-name-servers {{ pangolin.server_address }};
+
+default-lease-time 600;
+max-lease-time 7200;
+
+subnet {{ pangolin.subnet }} netmask {{ pangolin.netmask }} {
+  range dynamic-bootp {{ pangolin.dhcp_range_start }} {{ pangolin.dhcp_range_end }};
+}
+

@@ -1,0 +1,39 @@
+---
+# Copyright (c) 2019 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
+#
+# This file is part of Pangolin
+#
+# Pangolin is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Pangolin is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
+- name: Install BIND
+  package:
+    name: "{{ os_vars[os].bind }}"
+    state: present
+  become: yes
+- name: Disable BIND
+  systemd:
+    name: "{{ os_vars[os].bind }}"
+    state: stopped
+    enabled: no
+  become: yes
+- name: Copy configs to the correct location.
+  template:
+    src: "bind/{{ item }}.j2"
+    dest: "{{ os_vars[os].bind_dir }}/{{ item }}"
+  become: yes
+  loop:
+    - named.conf.default-zones
+    - named.conf.local
+    - pangolin.fwd
+    - pangolin.rev
+    
