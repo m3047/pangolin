@@ -24,7 +24,12 @@ Searching the internet suggests that this can be circumvented by using a USB Wif
 
 ### Installation
 
-At the present time only _Debian_ is supported, although more Linux distributions are likely to follow. This has been tested with _Debian 9.6_.
+At the present time only _Debian_ is supported, although more Linux distributions are likely to follow.
+
+The following have been tested:
+
+* OSX + VirtualBox + Debian 9.6 (Stretch)
+* Linux + KVM + Debian 10.2 (Buster)
 
 ##### Prepare a base installation
 
