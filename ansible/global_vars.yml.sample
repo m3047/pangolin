@@ -16,6 +16,7 @@ os_vars:
     dhcp_conf:   /etc/dhcp/dhcpd.conf
     interface:
       osx_vbox: enp0s8
+      linux_kvm: ens3
     interfaces: /etc/network/interfaces
     bind: bind9
     bind_dir: /etc/bind
