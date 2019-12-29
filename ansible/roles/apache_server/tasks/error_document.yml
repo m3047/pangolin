@@ -15,22 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
-- name: Install Apache
-  package:
-    name: "{{ os_vars[os].apache }}"
-    state: present
-  become: yes
-- name: Disable Apache
-  systemd:
-    name: "{{ os_vars[os].apache }}"
-    state: stopped
-    enabled: no
-  become: yes
-- name: Copy greeting page to correct location
+- name: Copy error document
   copy:
-    src: index.html
-    dest: "{{ os_vars[os].apache_docroot }}/index.html"
+    src: error.html
+    dest: "{{ os_vars[os].apache_docroot }}/error.html"
   become: yes
-- name: Add global error document
-  include_tasks: error_document.yml
-  
+- name: Copy apache config
+  copy:
+    src: error-document.conf
+    dest: /etc/apache2/sites-enabled/error-document.conf
+  become: yes
