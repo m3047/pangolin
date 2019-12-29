@@ -108,6 +108,82 @@ At this point, configure another laptop to use DHCP, and then connect it to the 
 
 Note that it only uses HTTP, so if you try to connect with HTTPS it will fail.
 
+### The purpose of `pangolin.target`
+
+The reason for having `pangolin.target` is to be able to start and stop all of the component services at a
+single shot.
+
+Due to limitations of `systemctl`, if you leave it _enabled_ at all times then starting one of its
+component services will start them all; and you have to leave it _enabled_ so that if you shut it down it will
+shut down the component services.
+
+Regardless of whether you leave `pangolin.target` enabled or disabled (described in the following sections)
+you can always query `pangolin.target` to see the status of component services:
+
+```
+# systemctl list-dependencies pangolin.target
+pangolin.target
+● ├─apache2.service
+● ├─bind9.service
+● └─isc-dhcp-server.service
+```
+
+The cut & paste doesn't do it justice, in a terminal window the bullets are different colors depending on whether
+the service is running (green) or not (black).
+
+##### Leaving `pangolin.target` enabled
+
+When _Pangolin_ sets up, `pangolin.target` is stopped but enabled; because nothing in the boot process depends
+on it (or its component services) it's for all practical purposes not running. If you execute
+```
+# systemctl start pangolin.target
+```
+that will start all of the component services.
+
+To shut them all down:
+```
+# systemctl stop pangolin.target
+```
+
+As noted above, due to limitations of `systemctl`, the following will also happen:
+
+* If you start a component service, they will all be started.
+* You can still stop a single component manually.
+
+##### I just want to be able to run a single service
+
+If this is the case, then disable the `pangolin.target`:
+```
+# systemctl disable pangolin.target
+```
+
+Now you can individually control one of the component services:
+```
+# systemctl start apache2.service
+# systemctl list-dependencies pangolin.target
+# systemctl stp apache2.service
+# systemctl list-dependencies pangolin.target
+```
+
+##### I just want to be able to stop them all with `pangolin.target`
+
+If this is the case, then disable the `pangolin.target`:
+```
+# systemctl disable pangolin.target
+```
+You can start all of the services by starting `pangolin.target` if you wish, or you can start
+individual services:
+```
+# systemctl start apache2.service bind9.service
+```
+
+To stop them all, you need to run the following sequence of commands (or put them in a script):
+```
+# systemctl enable pangolin.target
+# systemctl stop pangolin.target
+# systemctl disable pangolin.target
+```
+
 ### Future Work
 
 ##### Additional OSes
