@@ -31,7 +31,7 @@ The following have been tested:
 * OSX + VirtualBox + Debian 9.6 (Stretch)
 * Linux + KVM + Debian 10.2 (Buster)
 
-##### Prepare a base installation
+##### Prepare a base installation (VirtualBox)
 
 Create a VM inside of _VirtualBox_. You must create a bridged interface to the wifi device (e.g. `en0` on the _MacBook_), this is the interface which will be utilized by the server.
 
@@ -55,13 +55,29 @@ In particular, if the bridged interface is not `enp0s8` you will need to edit `g
 
 Perform a base installation of _Debian 9.6_ with _SSHD_ installed and activated. Create an account for access to the VM, we're using `animal` but you can change that in `global_vars.yml`.
 
-Verify connectivity with _SSH_, and set up passwordless _sudo_ for access account,.
+Verify connectivity with _SSH_, and set up passwordless _sudo_ for access account.
+
+##### Prepare a base installation (KVM)
+
+This was done to create a test and development environment within a desktop host. Review the instructions for VirtualBox. You only need to create one interface, which will be a `virbr` device with NAT enabled; some of its address space should be static and some should be available via DHCP.
+
+Once the base install (OS and SSHD) has completed you will need to set a static address in `/etc/networks/interfaces`. It will look something like the following (the closer the better, the playbook will be checking your work!):
+
+```
+# The primary network interface
+allow-hotplug ens3
+iface ens3 inet static
+    address 192.168.123.4/24
+    gateway 192.168.123.1
+```
+
+You will need to update `global_vars.yml` depending on how the `virbr` device is configured.
 
 ##### Prepare to install _Pangolin_
 
 Edit `hosts` and change the target host declared in the `[pangolin_server]` section to point to your target VM.
 
-If necessary, edit `global_vars.yml`. Things you might need to change are:
+Copy from `global_vars.yml.sample` and if necessary, edit `global_vars.yml`. Things you might need to change are:
 
 * `pangolin.domain_name`: the "TLD" (equivalent to `.com`, `.net`, etc.)
 * `pangolin.server_address`: the address the server will use within the virtualized environment.
