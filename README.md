@@ -12,7 +12,7 @@ The base functionality of _Pangolin_ consists of three features:
 
 If you successfully configure and launch the _Pangolin_ server within the wifi environment, it will provide connecting devices with an address and the location of the DNS server. Essentially what you will see happen is that if you connect to the wifi network and launch a web browser, no matter what web site name you enter it will redirect you to the pangolin web server (which only serves HTTP, not HTTPS, by default).
 
-Primarily this project consists of _Ansible_ scripts for configuring a (VirtualBox at the moment) VM as a server to be run in bridging mode connected to the wifi interface managed by the laptop ("host") OS. The type of wifi network and associated access controls (if any) you can create is going to be dictated by the host OS. _Be prepared for the possibility that anyone within wifi range can connect without authentication_, particularly when extending _Pangolin_: extensions should be prepared to perform their own user authentication as needed.
+Primarily this project consists of _Ansible_ scripts for configuring a VM as a server to be run in bridging mode connected to the wifi interface managed by the laptop ("host") OS. The type of wifi network and associated access controls (if any) you can create is going to be dictated by the host OS. _Be prepared for the possibility that anyone within wifi range can connect without authentication_, particularly when extending _Pangolin_: extensions should be prepared to perform their own user authentication as needed.
 
 ##### The problem with laptops (not running Linux)
 
@@ -24,9 +24,14 @@ Searching the internet suggests that this can be circumvented by using a USB Wif
 
 ### Installation
 
-At the present time only _Debian_ is supported, although more Linux distributions are likely to follow. This has been tested with _Debian 9.6_.
+At the present time only _Debian_ is supported, although more Linux distributions are likely to follow.
 
-##### Prepare a base installation
+The following have been tested:
+
+* OSX + VirtualBox + Debian 9.6 (Stretch)
+* Linux + KVM + Debian 10.2 (Buster)
+
+##### Prepare a base installation (VirtualBox)
 
 Create a VM inside of _VirtualBox_. You must create a bridged interface to the wifi device (e.g. `en0` on the _MacBook_), this is the interface which will be utilized by the server.
 
@@ -50,13 +55,29 @@ In particular, if the bridged interface is not `enp0s8` you will need to edit `g
 
 Perform a base installation of _Debian 9.6_ with _SSHD_ installed and activated. Create an account for access to the VM, we're using `animal` but you can change that in `global_vars.yml`.
 
-Verify connectivity with _SSH_, and set up passwordless _sudo_ for access account,.
+Verify connectivity with _SSH_, and set up passwordless _sudo_ for access account.
+
+##### Prepare a base installation (KVM)
+
+This was done to create a test and development environment within a desktop host. Review the instructions for VirtualBox. You only need to create one interface, which will be a `virbr` device with NAT enabled; some of its address space should be static and some should be available via DHCP.
+
+Once the base install (OS and SSHD) has completed you will need to set a static address in `/etc/networks/interfaces`. It will look something like the following (the closer the better, the playbook will be checking your work!):
+
+```
+# The primary network interface
+allow-hotplug ens3
+iface ens3 inet static
+    address 192.168.123.4/24
+    gateway 192.168.123.1
+```
+
+You will need to update `global_vars.yml` depending on how the `virbr` device is configured.
 
 ##### Prepare to install _Pangolin_
 
 Edit `hosts` and change the target host declared in the `[pangolin_server]` section to point to your target VM.
 
-If necessary, edit `global_vars.yml`. Things you might need to change are:
+Copy from `global_vars.yml.sample` and if necessary, edit `global_vars.yml`. Things you might need to change are:
 
 * `pangolin.domain_name`: the "TLD" (equivalent to `.com`, `.net`, etc.)
 * `pangolin.server_address`: the address the server will use within the virtualized environment.
@@ -107,6 +128,82 @@ sudo systemctl start pangolin.target
 At this point, configure another laptop to use DHCP, and then connect it to the _Pangolin_ wifi network. Launch a web browser, and if all goes according to plan you should see the "Pangolin" splash page. If that doesn't work, try http://world.pangolin/ before assuming something is wrong.
 
 Note that it only uses HTTP, so if you try to connect with HTTPS it will fail.
+
+### The purpose of `pangolin.target`
+
+The reason for having `pangolin.target` is to be able to start and stop all of the component services at a
+single shot.
+
+Due to limitations of `systemctl`, if you leave it _enabled_ at all times then starting one of its
+component services will start them all; and you have to leave it _enabled_ so that if you shut it down it will
+shut down the component services.
+
+Regardless of whether you leave `pangolin.target` enabled or disabled (described in the following sections)
+you can always query `pangolin.target` to see the status of component services:
+
+```
+# systemctl list-dependencies pangolin.target
+pangolin.target
+● ├─apache2.service
+● ├─bind9.service
+● └─isc-dhcp-server.service
+```
+
+The cut & paste doesn't do it justice, in a terminal window the bullets are different colors depending on whether
+the service is running (green) or not (black).
+
+##### Leaving `pangolin.target` enabled
+
+When _Pangolin_ sets up, `pangolin.target` is stopped but enabled; because nothing in the boot process depends
+on it (or its component services) it's for all practical purposes not running. If you execute
+```
+# systemctl start pangolin.target
+```
+that will start all of the component services.
+
+To shut them all down:
+```
+# systemctl stop pangolin.target
+```
+
+As noted above, due to limitations of `systemctl`, the following will also happen:
+
+* If you start a component service, they will all be started.
+* You can still stop a single component manually.
+
+##### I just want to be able to run a single service
+
+If this is the case, then disable the `pangolin.target`:
+```
+# systemctl disable pangolin.target
+```
+
+Now you can individually control one of the component services:
+```
+# systemctl start apache2.service
+# systemctl list-dependencies pangolin.target
+# systemctl stp apache2.service
+# systemctl list-dependencies pangolin.target
+```
+
+##### I just want to be able to stop them all with `pangolin.target`
+
+If this is the case, then disable the `pangolin.target`:
+```
+# systemctl disable pangolin.target
+```
+You can start all of the services by starting `pangolin.target` if you wish, or you can start
+individual services:
+```
+# systemctl start apache2.service bind9.service
+```
+
+To stop them all, you need to run the following sequence of commands (or put them in a script):
+```
+# systemctl enable pangolin.target
+# systemctl stop pangolin.target
+# systemctl disable pangolin.target
+```
 
 ### Future Work
 
