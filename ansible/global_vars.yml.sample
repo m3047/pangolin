@@ -1,6 +1,10 @@
 ---
 os: debian
 host_virt: osx_vbox
+# Used by etherpad_server.yml and the etherpad_server role.
+nodejs: /opt/downloads/node-v12.14.0-linux-x64.tar.xz
+etherpad: /opt/downloads/etherpad-lite-1.8.0-beta.1.zip
+
 pangolin:
   domain_name: pangolin
   server_address: 10.30.47.1
@@ -10,6 +14,7 @@ pangolin:
   dhcp_range_start: 10.0.0.1
   dhcp_range_end: 10.0.255.255
   admin_account: animal
+
 os_vars:
   debian:
     dhcp_server: isc-dhcp-server
@@ -24,5 +29,8 @@ os_vars:
     apache_dir: /etc/apache2
     apache_docroot: /var/www/html
     pip3: python3-pip
+    # Used by etherpad_server.yml and the etherpad_server role.
+    git: git
+    zip: zip
 
     
