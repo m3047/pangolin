@@ -27,8 +27,8 @@
     enabled: no
   become: yes
 - name: Copy greeting page to correct location
-  copy:
-    src: index.html
+  template:
+    src: index.html.j2
     dest: "{{ os_vars[os].apache_docroot }}/index.html"
   become: yes
 - name: Add global error document
