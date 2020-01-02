@@ -28,8 +28,8 @@
     # Install and enable Pangolin target.
     - name: Install pangolin.target
       copy:
-        src=files/etc/systemd/system/pangolin.target
-        dest=/etc/systemd/system/pangolin.target
+        src: files/etc/systemd/system/pangolin.target
+        dest: /etc/systemd/system/pangolin.target
       become: yes
     - name: Enable pangolin.target
       systemd:
