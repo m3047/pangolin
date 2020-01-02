@@ -1,0 +1,127 @@
+---
+# Copyright (c) 2019 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
+#
+# This file is part of Pangolin
+#
+# Pangolin is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Pangolin is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
+
+- name: Install git
+  package:
+    name: "{{ os_vars[os].git }}"
+    state: present
+- name: Install zip
+  package:
+    name: "{{ os_vars[os].zip }}"
+    state: present
+- name: Create etherpad group
+  group:
+    name: etherpad
+    state: present
+- name: Create etherpad user
+  user:
+    name: etherpad
+    group: etherpad
+    password: '!'
+
+- name: Copy nodejs distribution to VM
+  copy:
+    src: "{{ nodejs }}"
+    dest: /home/etherpad/
+- name: Unpack it, assuming xz...
+  shell:
+    cmd: tar --xz -xf node*xz
+    chdir: /home/etherpad
+- name: Link to it, canonically
+  shell:
+    cmd: ln -s `find node* -maxdepth 0 -type d` node
+    chdir: /home/etherpad
+    executable: /bin/bash
+
+- name: Copy etherpad distribution to VM
+  copy:
+    src: "{{ etherpad }}"
+    dest: /home/etherpad/
+- name: Unpack it, assuming .zip...
+  shell:
+    cmd: unzip etherpad*zip
+    chdir: /home/etherpad
+- name: Link to it, canonically
+  shell:
+    cmd: ln -s `find etherpad* -maxdepth 0 -type d` etherpad
+    chdir: /home/etherpad
+    executable: /bin/bash
+
+- name: Update .profile
+  blockinfile:
+    path: /home/etherpad/.profile
+    block: |
+      
+      # Set PATH so that it includes NodeJS
+      PATH="$HOME/node/bin:$PATH"
+      
+      # Set production mode for Etherpad
+      export NODE_ENV=production
+
+- name: Copy the start script for Etherpad
+  copy:
+    src: run-etherpad.sh
+    dest: /home/etherpad/run-etherpad.sh
+    mode: a+x
+
+- name: Make sure it's all owned by etherpad
+  file:
+    path: /home/etherpad
+    state: directory
+    recurse: yes
+    owner: etherpad
+    group: etherpad
+    
+- name: Copy the systemd service script
+  copy:
+    src: etherpad.service
+    dest: /etc/systemd/system/etherpad.service
+
+- name: Disable the Pangolin target
+  systemd:
+    name: pangolin.target
+    state: stopped
+    enabled: no
+  register: pangolin_target
+    
+- name: Add Etherpad to the Pangolin target
+  lineinfile:
+    path: /etc/systemd/system/pangolin.target
+    state: present
+    insertafter: '^Wants='
+    line: Wants=etherpad.service
+- lineinfile:
+    path: /etc/systemd/system/pangolin.target
+    state: present
+    insertafter: '^RequiredBy='
+    line: RequiredBy=etherpad.service
+
+- name: Re-enable the Pangolin target if necessary
+  systemd:
+    name: pangolin.target
+    start: stopped
+    enabled: yes
+  when: pangolin_target.changed
+
+- name: Copy greeting page to correct location
+  lineinfile:
+    path: "{{ os_vars[os].apache_docroot }}/index.html"
+    state: present
+    insertafter: '<h1>{{ pangolin.domain_name }}</h1>'
+    line: '<p><a href="http://etherpad.{{ pangolin.domain_name }}:9001/">Etherpad</a></p>'
+  

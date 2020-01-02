@@ -1,0 +1,82 @@
+---
+# Copyright (c) 2019 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
+#
+# This file is part of Pangolin
+#
+# Pangolin is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Pangolin is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Unprivileged Users and World Readable Files
+# -------------------------------------------
+# The etherpad_server role attempts to install etherpad under a new,
+# unprivileged user etherpad. This will probably require setting
+#
+#        allow_world_readable_tmpfiles = True
+#
+# in ansible.cfg.
+#
+# Locatons and Versions of NodeJS and Etherpad Archives
+# -----------------------------------------------------
+# Both of these are distributed as source archives. Since the names
+# of both the archives as well as the directory trees they unpack to
+# changes with the version along with the location to download from,
+# this script assumes that you've downloaded both distributions and
+# have placed them somewhere where the Ansible server can get to them.
+#
+# Those locations go in global_vars.yml, and the script uses some
+# (hopefully) clever logic to figure out the names of the unpacked
+# directory trees and rename them to something canonical.
+#
+  
+- hosts: pangolin_server
+  become: yes
+  pre_tasks:
+    - name: Get global variables before roles are run
+      include_vars: global_vars.yml
+  roles:
+    - etherpad_server
+  tasks:
+    # Execute Node for the first time, pulling in the swamp. 
+    - name: Disable the Pangolin target
+      systemd:
+        name: pangolin.target
+        state: stopped
+        enabled: no
+      register: pangolin_target
+    - name: Starting the Etherpad service for the first time...
+      systemd:
+        name: etherpad.service
+        state: started
+        enabled: no
+      
+    - name: ...poll until it comes up
+      uri:
+        url: http://127.0.0.1:9001/
+        return_content: yes
+      register: polled
+      delay: 5
+      retries: 30
+      until: "'Etherpad' in polled.content"
+      
+    - name: Stop the Etherpad service
+      systemd:
+        name: etherpad.service
+        state: stopped
+        enabled: no
+    - name: Re-enable the Pangolin target if necessary
+      systemd:
+        name: pangolin.target
+        start: stopped
+        enabled: yes
+      when: pangolin_target.changed
+      
