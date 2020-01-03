@@ -42,11 +42,13 @@
   shell:
     cmd: tar --xz -xf node*xz
     chdir: /home/etherpad
+    creates: /home/etherpad/node
 - name: Link to it, canonically
   shell:
     cmd: ln -s `find node* -maxdepth 0 -type d` node
     chdir: /home/etherpad
     executable: /bin/bash
+    creates: /home/etherpad/node
 
 - name: Copy etherpad distribution to VM
   copy:
@@ -56,11 +58,13 @@
   shell:
     cmd: unzip etherpad*zip
     chdir: /home/etherpad
+    creates: /home/etherpad/etherpad
 - name: Link to it, canonically
   shell:
     cmd: ln -s `find etherpad* -maxdepth 0 -type d` etherpad
     chdir: /home/etherpad
     executable: /bin/bash
+    creates: /home/etherpad/etherpad
 
 - name: Update .profile
   blockinfile:
@@ -124,4 +128,4 @@
     state: present
     insertafter: '<h1>{{ pangolin.domain_name }}</h1>'
     line: '<p><a href="http://etherpad.{{ pangolin.domain_name }}:9001/">Etherpad</a></p>'
-  
+

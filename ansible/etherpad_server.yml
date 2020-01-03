@@ -46,37 +46,10 @@
   roles:
     - etherpad_server
   tasks:
-    # Execute Node for the first time, pulling in the swamp. 
-    - name: Disable the Pangolin target
-      systemd:
-        name: pangolin.target
-        state: stopped
-        enabled: no
-      register: pangolin_target
-    - name: Starting the Etherpad service for the first time...
-      systemd:
-        name: etherpad.service
-        state: started
-        enabled: no
-      
-    - name: ...poll until it comes up
-      uri:
-        url: http://127.0.0.1:9001/
-        return_content: yes
-      register: polled
-      delay: 5
-      retries: 30
-      until: "'Etherpad' in polled.content"
-      
-    - name: Stop the Etherpad service
-      systemd:
-        name: etherpad.service
-        state: stopped
-        enabled: no
-    - name: Re-enable the Pangolin target if necessary
-      systemd:
-        name: pangolin.target
-        start: stopped
-        enabled: yes
-      when: pangolin_target.changed
-      
+    # Invoke Node for the first time to load all dependencies.
+    - name: Run Node for the first time to load dependencies
+      command:
+        cmd: sudo -iu etherpad /home/etherpad/etherpad/bin/installDeps.sh
+        chdir: /home/etherpad/etherpad
+      become: no
+    
