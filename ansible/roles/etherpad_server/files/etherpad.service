@@ -3,9 +3,12 @@ Description=Etherpad Service
 After=network.target
 
 [Service]
-User=etherpad
 Type=simple
-ExecStart=/home/etherpad/run-etherpad.sh
+User=etherpad
+Group=etherpad
+WorkingDirectory=/home/etherpad/etherpad
+Environment=NODE_ENV=production
+ExecStart=/home/etherpad/node/bin/node /home/etherpad/etherpad/node_modules/ep_etherpad-lite/node/server.js
 Restart=on-failure
 
 
