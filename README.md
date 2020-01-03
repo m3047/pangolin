@@ -71,7 +71,7 @@ iface ens3 inet static
     gateway 192.168.123.1
 ```
 
-You will need to update `global_vars.yml` depending on how the `virbr` device is configured.
+You will need to update `global_vars.yml` depending on how the `virbr` device is configured. _The DHCP pool managed by the Virtual Bridge **is not** the same as the pool managed by the Pangolin server_ and the Pangolin pool should be allocated from the fixed space managed by the Virtual Bridge.
 
 ##### Prepare to install _Pangolin_
 
