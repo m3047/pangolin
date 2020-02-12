@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2019 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
+# Copyright (c) 2019,2020 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
 #
 # This file is part of Pangolin
 #
@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
 - name: Copy error document
-  copy:
-    src: error.html
+  template:
+    src: error.html.j2
     dest: "{{ os_vars[os].apache_docroot }}/error.html"
   become: yes
 - name: Copy apache config

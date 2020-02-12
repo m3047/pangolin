@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Pangolin</title>
+    <title>{{ pangolin.domain_name }}</title>
     <style type="text/css">
       body    { background: #aa0000;
 		color: #aaaaff; text-align: center; }
@@ -9,10 +9,10 @@
     </style>
   </head>
   <body>
-    <h1>This is Pangolin</h1>
+    <h1>This is {{ pangolin.domain_name }}</h1>
     <p>If this isn't what you're looking for, you should leave now. (Maybe you're on
        the wrong wifi network?)
     </p>
-    <p><a href="http://world.pangolin/">otherwise, try this link</a></p>
+    <p><a href="http://world.{{ pangolin.domain_name }}/">otherwise, try this link</a></p>
   </body>
 </html>
