@@ -55,7 +55,14 @@ In particular, if the bridged interface is not `enp0s8` you will need to edit `g
 
 Perform a base installation of _Debian 9.6_ with _SSHD_ installed and activated. Create an account for access to the VM, we're using `animal` but you can change that in `global_vars.yml`.
 
-Verify connectivity with _SSH_, and set up passwordless _sudo_ for access account.
+Verify connectivity with _SSH_, and set up passwordless _sudo_ for the access account. **IMPORTANT** Some addons,
+for instance _Eitherpad_, may require the ability to sudo to other accounts besides `root`. Your entry in 
+`/etc/sudoers.d/` will probably look a lot like:
+
+```
+# cat animal
+animal ALL = (ALL) NOPASSWD: ALL
+```
 
 ##### Prepare a base installation (KVM)
 
