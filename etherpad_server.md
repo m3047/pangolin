@@ -8,6 +8,9 @@ This is accomplished in two steps:
 1. Run the `pangolin_base_server.yml` playbook.
 1. Run the `etherpad_server.yml` playbook.
 
+Generally speaking a given playbook should only be run (successfully) once. If it's been run and it's called
+out somewhere, consider that a met dependency.
+
 If you start the _Pangolin_ environment at that point the `http://world.pangolin/` home page will
 have a link to _Etherpad_ at http://etherpad.pangolin:9001/
 
