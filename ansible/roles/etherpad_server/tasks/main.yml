@@ -77,12 +77,6 @@
       # Set production mode for Etherpad
       export NODE_ENV=production
 
-- name: Copy the start script for Etherpad
-  copy:
-    src: run-etherpad.sh
-    dest: /home/etherpad/run-etherpad.sh
-    mode: a+x
-
 - name: Make sure it's all owned by etherpad
   file:
     path: /home/etherpad
