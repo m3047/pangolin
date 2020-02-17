@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+  
+  ServerName    webdav.{{ pangolin.domain_name }}
+  DocumentRoot  {{ os_vars[os].server_docroot }}/webdav
+  
+  <Directory "{{ os_vars[os].server_docroot }}/webdav">
+    Dav on
+    HeaderName  HEADER.html
+  </Directory>
+
+</VirtualHost>
+

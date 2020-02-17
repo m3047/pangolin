@@ -1,0 +1,38 @@
+---
+# Copyright (c) 2020 Fred Morris Tacoma WA USA m3047-pangolin-g3n@m3047.net
+#
+# This file is part of Pangolin
+#
+# Pangolin is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Pangolin is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
+#
+# WebDAV Server
+# -------------
+#
+# This playbook sets your server up as a Distributed Authoring and Versioning (DAV)
+# server.
+#
+# THIS MEANS THAT PEOPLE CAN UPLOAD DOCUMENTS TO YOUR SERVER. THERE IS NO SECURITY
+# WHATSOEVER PROVIDED. MAKE BLOODY WELL SURE YOU NEVER RUN THIS ON A SERVER CONNECTED
+# TO THE REAL INTERNET!
+
+- hosts: pangolin_server
+  become: yes
+  pre_tasks:
+    - name: Get global variables before roles are run
+      include_vars: global_vars.yml
+  roles:
+    - dav_server
+  #tasks:
+  
+  
