@@ -48,6 +48,11 @@ before the application can be run successfully offline. If the script fails at t
 see if it's still running; if so, consider just letting it run until it answers on port 9001. You can manually
 shut it down with `systemctl stop etherpad.service`.
 
+##### Hangs while running the Etherpad application for the first time
+
+No, really hangs. Nothing is happening. Did you set the sudo access for the privileged account as
+`ALL = (ALL) NOPASSWD: ALL`? It needs to sudo to the `etherpad` account for this step.
+
 ### After running the playbooks
 
 The `pangolin.target` exists as a way to manage the components collectively with `systemctl`.
