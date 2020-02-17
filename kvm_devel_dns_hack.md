@@ -27,6 +27,6 @@ Using a DNS entry within your vanity domain and given that your vanity domain
 (`example` without the `.com`) is in your _domain search list_, things
 should also resolve correctly:
 
-1. `world.pangolin` doesn't resolve
-1. `.example` is appended and `world.pangolin.example` and resolves to the VM's address
+1. `world.pangolin` doesn't resolve.
+1. `.example` is appended and `world.pangolin.example` resolves to the VM's address.
 1. The web browser doesn't care and still sends just `world.pangolin` as the hostname.
