@@ -10,6 +10,11 @@ The base functionality of _Pangolin_ consists of three features:
 * A DNS server
 * A web server
 
+Applications are layered on top of it. See the specific documentation for:
+
+* [Etherpad](https://github.com/m3047/pangolin/blob/master/etherpad_server.md)
+* [WebDAV (Distributed Authoring and Versioning)](https://github.com/m3047/pangolin/blob/master/webdav_server.md)
+
 If you successfully configure and launch the _Pangolin_ server within the wifi environment, it will provide connecting devices with an address and the location of the DNS server. Essentially what you will see happen is that if you connect to the wifi network and launch a web browser, no matter what web site name you enter it will redirect you to the pangolin web server (which only serves HTTP, not HTTPS, by default).
 
 Primarily this project consists of _Ansible_ scripts for configuring a VM as a server to be run in bridging mode connected to the wifi interface managed by the laptop ("host") OS. The type of wifi network and associated access controls (if any) you can create is going to be dictated by the host OS. _Be prepared for the possibility that anyone within wifi range can connect without authentication_, particularly when extending _Pangolin_: extensions should be prepared to perform their own user authentication as needed.
