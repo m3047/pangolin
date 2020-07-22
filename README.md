@@ -34,7 +34,7 @@ At the present time only _Debian_ is supported, although more Linux distribution
 The following have been tested:
 
 * OSX + VirtualBox + Debian 9.6 (Stretch)
-* Linux + KVM + Debian 10.2 (Buster)
+* Linux + KVM + Debian 10.2 and 10.4 (Buster)
 
 ##### Prepare a base installation (VirtualBox)
 
