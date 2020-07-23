@@ -15,13 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Pangolin.  If not, see <http://www.gnu.org/licenses/>.
-- name: Copy error document
+- name: Copy index document
   template:
-    src: error.html.j2
-    dest: "{{ os_vars[os].apache_docroot }}/htdocs/error.html"
+    src: index.html.j2
+    dest: "{{ os_vars[os].apache_docroot }}/htdocs/index.html"
   become: yes
 - name: Copy apache config
-  copy:
-    src: error-document.conf
-    dest: "{{ os_vars[os].apache_sites }}/error-document.conf"
+  template:
+    src: default.conf.j2
+    dest: "{{ os_vars[os].apache_sites }}/00-default.conf"
   become: yes

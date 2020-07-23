@@ -118,7 +118,7 @@
 
 - name: Copy greeting page to correct location
   lineinfile:
-    path: "{{ os_vars[os].apache_docroot }}/index.html"
+    path: "{{ os_vars[os].apache_docroot }}/htdocs/index.html"
     state: present
     insertafter: '<h1>{{ pangolin.domain_name }}</h1>'
     line: '<p><a href="http://etherpad.{{ pangolin.domain_name }}:9001/">Etherpad</a></p>'

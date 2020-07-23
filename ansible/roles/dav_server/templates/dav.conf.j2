@@ -4,8 +4,9 @@
   DocumentRoot  {{ os_vars[os].server_docroot }}/webdav
   
   <Directory "{{ os_vars[os].server_docroot }}/webdav">
+    Options +Indexes
+    DirectoryIndex disabled
     Dav on
-    HeaderName  HEADER.html
   </Directory>
 
 </VirtualHost>

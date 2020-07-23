@@ -1,0 +1,17 @@
+<VirtualHost *:80>
+
+    ServerName world.{{ pangolin.domain_name }}
+
+    ServerAdmin good-luck-with-that@world.{{ pangolin.domain_name }}
+    DocumentRoot {{ os_vars[os].apache_docroot }}/htdocs
+
+    <Directory "{{ os_vars[os].apache_docroot }}/htdocs">
+        Options +Indexes
+        # Dav off
+        HeaderName HEADER.html
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+</VirtualHost>

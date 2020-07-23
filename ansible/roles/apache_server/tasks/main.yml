@@ -26,11 +26,36 @@
     state: stopped
     enabled: no
   become: yes
-- name: Copy greeting page to correct location
-  template:
-    src: index.html.j2
-    dest: "{{ os_vars[os].apache_docroot }}/index.html"
+- name: Tabula rasa
+  file:
+    path: "{{ os_vars[os].apache_sites }}"
+    state: absent
   become: yes
+- file:
+    path: "{{ os_vars[os].apache_sites }}"
+    state: directory
+    mode: "u=rwx,go=rx"
+  become: yes
+- name: Create appropriate doc path
+  file:
+    path: "{{ os_vars[os].apache_docroot }}/htdocs"
+    state: directory
+  become: yes
+- name: Delete any default index.html doc
+  file:
+    path: "{{ os_vars[os].apache_docroot }}/index.html"
+    state: absent
+  become: yes
+- name: Set up config and directory structure
+  include_tasks: basic_setup.yml
 - name: Add global error document
   include_tasks: error_document.yml
+- name: Fix permissions on html doc tree
+  file:
+    path: "{{ os_vars[os].apache_docroot }}"
+    state: directory
+    owner: "{{ os_vars[os].apache_user }}"
+    group: "{{ os_vars[os].apache_group }}"
+    recurse: yes
+  become: yes
   

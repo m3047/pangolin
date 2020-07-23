@@ -19,10 +19,9 @@
 - name: Create DAV publishing hierarchy
   file:
     path: "{{ os_vars[os].server_docroot }}/webdav"
-    state: directory
+    state: link
+    src: "{{ os_vars[os].apache_docroot }}"
     recurse: no
-    owner: "{{ os_vars[os].apache_user }}"
-    group: "{{ os_vars[os].apache_group }}"
   
 - name: Copy HEADER.html with instructions
   template:
@@ -35,14 +34,40 @@
   template:
     src: "dav.conf.j2"
     dest: "{{ os_vars[os].apache_sites }}/dav.conf"
+
+- name: Edit the default configuration and enable Dav
+  replace:
+    path: "{{ os_vars[os].apache_sites }}/00-default.conf"
+    regexp: "# Dav off"
+    replace: "Dav off"
     
 - name: Enable DAV Apache modules
   command: /usr/sbin/a2enmod dav dav_fs
     
 - name: Create a link on the greeting page
   lineinfile:
-    path: "{{ os_vars[os].apache_docroot }}/index.html"
+    path: "{{ os_vars[os].apache_docroot }}/htdocs/index.html"
     state: present
     insertafter: '<h1>{{ pangolin.domain_name }}</h1>'
     line: '<p><a href="http://webdav.{{ pangolin.domain_name }}/">WebDAV</a></p>'
+- name: Add instructions to greeting page
+  blockinfile:
+    dest: "{{ os_vars[os].apache_docroot }}/htdocs/index.html"
+    marker: "<!-- {mark} ANSIBLE DAV BLOCK -->"
+    insertbefore: "</body>"
+    block: |
+      <div>
+      <blockquote style="margin-left: 25%; width: 50%">
+          <center><p style="font-weight: bold"><i>DAV Server</i> Instructions:</p></center>
+          <p>
+          <ol>
+          <li>Connect to <a href="http://webdav.pangolin/">http://webdav.pangolin/</a> using <i>DAV</i>.</li>
+          <li>Copy the content of htdocs to a sensibly named local folder.</li>
+          <li>Edit the content.</li>
+          <li>Upload the content to the DAV server to apply your changes. <i><b>DO NOT</b> edit files directly
+              on the DAV server, bad things tend to happen to the files. :-(</i>.</li>
+          </ol>
+          </p>
+      </blockquote>
+      </div>
 
